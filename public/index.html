@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scraping</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="#">
+
+    <!--Fonts-->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet"> 
+    
+    <style>
+        html {
+            font-family: "Roboto";
+            margin: 0;
+        }
+        body {
+            background-color: #505050;
+            position: relative;
+            left: 50%;
+            transform: translate(-50%);
+            margin: 0;
+        }
+        img {
+            border: 4px solid black;
+        }
+        #ensemble {
+            position: relative;
+            background-color: white;
+            padding: 30px;
+            padding-top: 20px;
+            margin: 0;
+            width: 50%;
+            transform: translate(-50%);
+            left: 50%;
+            border: 2px solid black;
+            border-top: 0;
+            text-align: center;
+        }
+        .a {
+            width: 148px;
+            position: relative;
+            text-align: center;
+        }
+        .text {
+            position: relative;
+            text-align: center;
+        }
+        .details {
+            position: relative;
+            overflow: hidden;
+            width: 300px;
+            transform: translate(-50%);
+            left: 50%;
+        }
+        .genre {
+            float: right;
+        }
+        .duree {
+            float: left;
+        }
+        .film {
+            background-color: lightgrey;
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        form {
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <form id="form">
+        <h1>Upcoming movies</h1>
+        <label>Month</label>
+        <select id="month">
+            <option value="01">1</option>
+            <option value="02">2</option>
+            <option value="03">3</option>
+            <option value="04">4</option>
+            <option value="05">5</option>
+            <option value="06">6</option>
+            <option value="07">7</option>
+            <option value="08">8</option>
+            <option value="09">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+        </select>
+        <label>Year</label>
+        <select id="year">
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+        </select>
+        <input type="button" onclick="sendInfos()" value="Search" id="bouton">
+    </form>
+
+    
+
+    <script>
+        async function sendInfos() {
+            var mois = document.getElementById("month").value;
+            var annee = document.getElementById("year").value;
+            const data = {mois, annee};
+            console.log(data)
+            const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                }
+            const response = await fetch('/api', options);
+            const json = await response.json();
+            console.log(json);
+            setInterval(() => location.reload(), 2000)
+        }
+
+        getData();
+        async function getData() {
+            const response = await fetch('/api');
+            const data = await response.json();
+            const divEnsemble = document.createElement('div');
+            divEnsemble.id = "ensemble";
+            divEnsemble.append(document.getElementById("form"))
+            for(item of data) {
+                const root = document.createElement('div');
+                root.className = "film";
+                const divImg = document.createElement('div');
+                divImg.className = "a";
+                const img = document.createElement('img');
+                const titre = document.createElement('h1');
+                const divDesc = document.createElement('div');
+                divDesc.className = "text";
+                const description = document.createElement('p');
+                const divDetails = document.createElement("div");
+                divDetails.className = "details";
+                const duree = document.createElement('p');
+                duree.className = "duree";
+                const genre = document.createElement('p');
+                genre.className = "genre";
+
+                img.src = `${item.img}`;
+                titre.textContent = `${item.title}`;
+                description.textContent = `${item.description}`;
+                if (item.time == null) {
+                    var time = "unknown";
+                } else {
+                    var time = item.time;
+                }
+                duree.textContent = `Length: ${time}`;
+                genre.textContent = `Genre: ${item.genre}`;
+
+                divDetails.append(duree, genre);
+                divDesc.append(description, divDetails);
+                root.append(titre, img, divImg, divDesc, )
+
+                divEnsemble.append(root);
+                document.body.append(divEnsemble);
+            }
+            console.log(data)
+        }
+    </script>
+</body>
+</html>
